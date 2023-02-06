@@ -10,5 +10,6 @@ python-dotenv
 sqlalchemy         
 psycopg2
 #for email validation            #new
-pydantic[email] 
-
+pydantic
+#hashing              #new
+passlib
