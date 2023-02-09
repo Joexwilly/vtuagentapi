@@ -15,9 +15,14 @@ def retreive_job(id:int,db:Session):
     item = db.query(Job).filter(Job.id == id).first()
     return item
 
-def list_jobs(db : Session):    #new
-    jobs = db.query(Job).all().filter(Job.is_active == True)
+# list all jobs in the database
+def list_jobs(db:Session):
+    jobs = db.query(Job).all()
     return jobs
+
+# def list_jobs(db: Session):    #new
+#     jobs = db.query(Job).all().filter(Job.is_active == True)
+#     return jobs
 
 def update_job_by_id(id:int, job: JobCreate,db: Session,owner_id):
     existing_job = db.query(Job).filter(Job.id == id)
