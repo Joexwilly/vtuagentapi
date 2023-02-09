@@ -16,3 +16,4 @@ passlib
 #for testing       #new
 pytest
 requests
+python-multipart
