@@ -14,3 +14,15 @@ def create_new_user(user: UserCreate, db: Session):
 def get_user_by_email(email:str,db:Session):             #new
     user = db.query(User).filter(User.email == email).first()
     return user
+
+# list all users in the database
+def list_users(db:Session):
+    jobs = db.query(User).all()
+    return jobs
+
+
+
+# get user by id
+def get_user_by_id(id:int,db:Session):
+    user = db.query(User).filter(User.id == id).first()
+    return user
