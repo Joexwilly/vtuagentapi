@@ -9,7 +9,7 @@ from db.models.jobs import Job
 from schemas.jobs import JobCreate,ShowJob
 from db.repository.jobs import create_new_job
 from db.models.users import User
-from apis.version1.route_login import get_current_user_from_token
+from api.version1.route_auth import get_current_user_from_token
 
 router = APIRouter()
 
