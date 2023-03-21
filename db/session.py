@@ -1,11 +1,14 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
-from typing import Generator  
+from typing import Generator
+import os
+
+
 
 from core.config import settings
 
 
-SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
+SQLALCHEMY_DATABASE_URL = settings.DATABASE_URLI
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 metadata = MetaData()
 
