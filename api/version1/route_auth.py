@@ -3,9 +3,13 @@ from fastapi import Depends,APIRouter
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from fastapi import status,HTTPException
-from jose import JWTError, jwt
+from jose import JWTError, jwt,ExpiredSignatureError
 from db.repository.auth import get_user, get_user_by_email
 import secrets
+import base64
+import json
+from jose.jwt import ExpiredSignatureError
+
 
 from db.session import get_db
 from core.hashing import Hasher
@@ -15,6 +19,7 @@ from email_config.send_email import password_reset
 from core.security import create_access_token
 from core.config import settings
 from db.repository.users import get_user_by_id
+import secrets
 
 
 router = APIRouter()
@@ -43,7 +48,8 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),db: 
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "expires_in": access_token_expires, "data":{"id": user.id, "email": user.email, "phone": user.phone, "is_active": user.is_active, "is_superuser": user.is_superuser}
+            }
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")  #new
 
@@ -63,7 +69,7 @@ def get_current_user_from_token(token: str = Depends(oauth2_scheme),db: Session=
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = get_user(email=email,db=db)
+    user = get_user_by_email(email,db)
     if user is None:
         raise credentials_exception
     return user
@@ -120,3 +126,32 @@ async def reset_password(token: str, password: str,db: Session=Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="Invalid token"
             )
+
+# activate user email
+@router.post("/activate/{token}", response_description="Activate User")
+async def activate_user(token: str,db: Session=Depends(get_db)):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id: int = payload.get("id")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail="Invalid token"
+                )
+        user = get_user_by_id(user_id,db)
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail="Invalid token"
+                )
+        user.is_active = True
+        db.commit()
+        return {"message": "User successfully activated"}
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Invalid token"
+            )
+    
+
+

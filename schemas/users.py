@@ -21,6 +21,7 @@ class ShowUser(BaseModel):
     id: int  
     phone : str 
     email : EmailStr
+    wallet: int
     #gender: str
     is_active : bool
 

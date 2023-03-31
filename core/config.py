@@ -21,9 +21,10 @@ class Settings(BaseSettings):
     DATABASE_URLI = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
     
     SECRET_KEY :str = os.getenv("SECRET_KEY")   
-    ALGORITHM = "HS256"                         
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30  
+    ALGORITHM : str = os.getenv("ALGORITHM")                      
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
     TEST_USER_EMAIL = "test@example.com"
+    
     print(DATABASE_URLI)
 
 

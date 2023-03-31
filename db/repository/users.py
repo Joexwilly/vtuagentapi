@@ -57,4 +57,7 @@ def update_user_by_id(id: int, user: UserCreate, db: Session):
     db.commit()
     return 1
 
-
+#get wallet balance
+def get_wallet_balance(id:int,db:Session):
+    user = db.query(User).filter(User.id == id).first()
+    return user.wallet
