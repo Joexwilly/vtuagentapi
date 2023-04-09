@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from fastapi import status,HTTPException
 from jose import JWTError, jwt,ExpiredSignatureError
-from db.repository.auth import get_user, get_user_by_email
+from db.repository.auth import get_user, get_user_by_email, sms_otp, verify_sms_otp
 import secrets
 import base64
 import json
@@ -18,7 +18,7 @@ from email_config.send_email import password_reset
 
 from core.security import create_access_token
 from core.config import settings
-from db.repository.users import get_user_by_id
+from db.repository.users import get_user_by_id, get_user_by_phone
 import secrets
 
 
@@ -48,7 +48,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),db: 
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer", "expires_in": access_token_expires, "data":{"id": user.id, "email": user.email, "phone": user.phone, "is_active": user.is_active, "is_superuser": user.is_superuser}
+    return {"access_token": access_token, "token_type": "bearer", "expires_in": access_token_expires, "data":{"id": user.id, "email": user.email, "phone": user.phone, "wallet": user.wallet, "is_active": user.is_active, "is_superuser": user.is_superuser}
             }
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")  #new
@@ -57,6 +57,25 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/token")  #new
 
 #new function, It works as a dependency
 def get_current_user_from_token(token: str = Depends(oauth2_scheme),db: Session=Depends(get_db)): 
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+    )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        email: str = payload.get("sub")
+        print("username/email extracted is ",email)
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    user = get_user_by_email(email,db)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+def get_current_user_from_token_now(token: str,db: Session=Depends(get_db)): 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -152,6 +171,33 @@ async def activate_user(token: str,db: Session=Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="Invalid token"
             )
-    
 
+#get otp by sms
+@router.post("/otp", response_description="Get OTP")
+async def get_otp(user_phone: str,db: Session=Depends(get_db)):
+    user = get_user_by_phone(user_phone,db)
+    if user is not None:
+        #strip phone number to 10 digits and add 234 to the front
+        phone = "234" + user_phone[-10:]
+        otp = sms_otp(phone,db)
+        #await otp_send("OTP", user.phone, {"title": "OTP", "otp": otp})
+        return {"message": "OTP sent"}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User with this phone number not found"
+            )
+
+#update password with otp
+@router.post("/password-reset/{otp}", response_description="Update Password")
+async def update_password(otp: str, db: Session=Depends(get_db)):
+    #check if the sms otp is valid
+    if verify_sms_otp(otp,db=db):
+        #get the user id from the otp
+        return {"message": "Password successfully updated"}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Invalid OTP"
+            )
 

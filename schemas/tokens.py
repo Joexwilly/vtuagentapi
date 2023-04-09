@@ -7,7 +7,7 @@ class Token(BaseModel):
     token_type: str
     expires_in: timedelta
     data: dict
-    
+
 
 
 class TokenData(BaseModel):
