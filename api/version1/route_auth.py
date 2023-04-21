@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from fastapi import status,HTTPException
 from jose import JWTError, jwt,ExpiredSignatureError
+from db.models.users import User
 from db.repository.auth import get_user, get_user_by_email, sms_otp, verify_sms_otp
 import secrets
 import base64
@@ -201,3 +202,16 @@ async def update_password(otp: str, db: Session=Depends(get_db)):
             detail="Invalid OTP"
             )
 
+#logout user
+@router.post("/logout", response_description="Logout User")
+async def logout_user(current_user: User = Depends(get_current_user_from_token),db: Session=Depends(get_db)):
+    user = get_user_by_id(current_user.id,db)
+    if user is not None:
+        user.refresh_token = None
+        db.commit()
+        return {"message": "User successfully logged out"}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User not found"
+            )

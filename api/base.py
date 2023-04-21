@@ -5,6 +5,7 @@ from api.version1 import route_users
 from api.version1 import route_jobs
 from api.version1 import route_auth
 from api.version1 import route_transactions
+from api.version1 import route_wallet
 
 
 
@@ -15,3 +16,4 @@ api_router.include_router(route_users.router,prefix="/users",tags=["User Routes"
 api_router.include_router(route_jobs.router,prefix="/jobs",tags=["jobs"]) 
 api_router.include_router(route_auth.router,prefix="/login",tags=["Authentication"]) 
 api_router.include_router(route_transactions.router,prefix="/transactions",tags=["Transactions"])
+api_router.include_router(route_wallet.router,prefix="/wallet",tags=["Wallet"])
