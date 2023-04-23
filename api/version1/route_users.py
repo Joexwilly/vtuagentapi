@@ -38,19 +38,18 @@ async def registration(user: UserCreate, db: Session = Depends(get_db)):
     if user:
         create_new_wallet(wallet={ "balance": 0, }, db=db, user_id=id)
 
-    
-
-
-
-
-
 
 
 
     #send registration email
-       #if send email is false, return user
-    await send_registration_mail("Registration Successful", user.email, {"title": "Registration Successful"})
-    
+   
+
+    try:
+        #send registration email
+        await send_registration_mail("Registration Successful", user.email, {"title": "Registration Successful"})
+    except Exception as e:
+        # Log the error or take any other necessary action
+        print(f"Failed to send registration email: {e}")
 
     return user
 

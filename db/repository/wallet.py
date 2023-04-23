@@ -12,6 +12,7 @@ from db.repository.datetime import formatted_datetime, ref
 def create_new_wallet(wallet: WalletCreate, db: Session, user_id: int):
     wallet_object = Wallet(user_id = user_id, balance = 0)
     #get user_id from Wallet
+    method = "created"
    # wallet_object.user_id = user_id
     db.add(wallet_object)
     db.commit()
@@ -19,7 +20,7 @@ def create_new_wallet(wallet: WalletCreate, db: Session, user_id: int):
     # add wallet history
     
 
-    record_wallet_balance_history(wallet_object.id, wallet_object.user_id, wallet_object.balance, wallet_object.balance, 0, ref, db,)
+    record_wallet_balance_history(wallet_object.id, wallet_object.user_id, wallet_object.balance, wallet_object.balance, 0, ref, method, db,)
     return wallet_object
 
 
@@ -69,13 +70,13 @@ def get_wallet_balance(id: int, db: Session):
     return item.balance
 
 #update wallet balance after getting the current balance
-def update_wallet_balance(id: int, amount: int, db: Session):
-    item = db.query(Wallet).filter(Wallet.id == id).first()
-    item.balance = item.balance + amount
-    db.commit()
-    return item
+# def update_wallet_balance(id: int, amount: int, db: Session):
+#     item = db.query(Wallet).filter(Wallet.id == id).first()
+#     item.balance = item.balance + amount
+#     db.commit()
+#     return item
 
-def update_wallet_balance_by_id(id: int, reference: str, amount: int, db: Session):
+def update_wallet_balance_by_id(id: int, reference: str, amount: int, method:str, db: Session):
     item = db.query(Wallet).filter(Wallet.user_id == id).first()
 
     if item is None:
@@ -101,6 +102,7 @@ def update_wallet_balance_by_id(id: int, reference: str, amount: int, db: Sessio
             #add reference, if reference is empty then generate a random string
             #reference = reference if reference is not None else ref,
             reference = reference,
+            method=method,
 
 
 
@@ -122,7 +124,7 @@ def get_wallet_history(id: int, db: Session):
 
 
 def record_wallet_balance_history( wallet_id: int, user_id: int, balance_before: Decimal,
-                                  balance_after: Decimal, amount: Decimal, reference: str,db: Session):
+                                  balance_after: Decimal, amount: Decimal, reference: str, method: str, db: Session):
     """
     Record wallet balance history in the database.
 
@@ -145,6 +147,7 @@ def record_wallet_balance_history( wallet_id: int, user_id: int, balance_before:
         amount=amount,
         #add reference, if reference is empty then generate a random string
         reference = reference if reference is not None else ref,
+        method=method,
         date_time=formatted_datetime
     )
     db.add(balance_history)

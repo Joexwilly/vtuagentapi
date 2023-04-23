@@ -51,6 +51,7 @@ class WalletHistory(Base):
     balance_after = Column(DECIMAL(10, 2), default=0.00)
     amount = Column(DECIMAL(10, 2), default=0.00)
     reference = Column(String, nullable=True, unique=True)
+    method = Column(String, nullable=True)
     date_time = Column(DateTime, default=formatted_datetime)
     wallet = relationship('Wallet', back_populates='wallethistory', cascade="all, delete")
     user = relationship('User', back_populates='wallethistory', cascade="all, delete")
