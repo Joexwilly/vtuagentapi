@@ -1,6 +1,7 @@
 from typing import List, Union
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from api.version1.route_auth import get_current_user_from_token
 from core.hashing import Hasher
 from fastapi.encoders import jsonable_encoder
 import secrets
@@ -108,14 +109,12 @@ def update_user(id: int,user: UserCreate, db: Session = Depends(get_db)):
                             detail=f"User with id {id} not found")
     return {"msg":"Successfully updated data."} 
 
+#get current logged in user
+@router.get("/me", response_model=ShowUser)
+def read_users_me(current_user: ShowUser = Depends(get_current_user_from_token)):
+    return current_user
 
-#automatically create wallet for user when they create an account
-#  @router.post("/wallet", response_description="Create a wallet for a user", response_model=ShowWallet)
-# async def create_wallet_for_user(wallet: WalletCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-#     #check if user already has a wallet
-#     wallet = retreive_wallet(id=current_user.id, db=db)
-#     if wallet:
-#         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already has a wallet")
-    
-#     wallet = create_new_wallet(wallet=wallet, db=db, user_id=current_user.id)
-#     return wallet
+
+
+
+

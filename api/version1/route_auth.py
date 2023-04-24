@@ -94,6 +94,37 @@ def get_current_user_from_token_now(token: str,db: Session=Depends(get_db)):
         raise credentials_exception
     return user
 
+#function to decode jwt token
+def decode_token(token):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        return payload
+    except ExpiredSignatureError:
+        return False
+    except JWTError:
+        return False
+    
+#function to get user details from token
+# def get_user_from_token(token):
+#     payload = decode_token(token)
+#     if payload:
+#         user = get_user_by_email(payload.get("sub"),db)
+#         return user
+#     else:
+#         return False
+    
+#get user details from token
+@router.post("/userme", response_description="Get user details from token")
+async def get_user_me(token: str,db: Session=Depends(get_db)):
+    user = decode_token(token)
+    if user:
+        return user
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User with this token not found"
+            )
+
 
 
 
@@ -215,3 +246,5 @@ async def logout_user(current_user: User = Depends(get_current_user_from_token),
             status_code=status.HTTP_404_NOT_FOUND, 
             detail="User not found"
             )
+    
+#get current user from token depending on oauth2_scheme
