@@ -58,9 +58,9 @@ def delete_wallet(id: int,db: Session = Depends(get_db),current_user: User = Dep
  #update wallet balance after getting the current balance
 
 @router.patch("/update-balance/{userid}")
-def update_wallet_balance(id: int, amount: float, reference: str = None, db: Session = Depends(get_db)):
+def update_wallet_balance(id: int, amount: float, reference: str = None, method: str = None, db: Session = Depends(get_db)):
     current_user = 1
-    message = update_wallet_balance_by_id(id=id,db=db, amount=amount, reference=reference)
+    message = update_wallet_balance_by_id(id=id,db=db, amount=amount, reference=reference, method=method)
     if not message:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Wallet with id {id} not found")
