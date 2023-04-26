@@ -58,7 +58,7 @@ def list_users(db:Session):
     return users
 
 
-    # add wallet json records to show_users json records
+
 
 
 
