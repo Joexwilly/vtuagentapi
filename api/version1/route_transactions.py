@@ -108,8 +108,8 @@ def delete_transaction(reference: str,db: Session = Depends(get_db),current_user
 
 #get transaction by type
 @router.get("/type/{type}",response_model=List[ShowTransaction])
-def read_transactions_by_type(transaction_type:str,db:Session = Depends(get_db)):
-    transactions = retreive_transaction_by_type(db=db,transaction_type=transaction_type)
+def read_transactions_by_type(type:str,db:Session = Depends(get_db)):
+    transactions = retreive_transaction_by_type(db=db,transaction_type=type)
     return transactions
 
 

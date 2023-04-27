@@ -76,43 +76,46 @@ def get_wallet_balance(id: int, db: Session):
 #     db.commit()
 #     return item
 
-def update_wallet_balance_by_id(id: int, reference: str, amount: int, method:str, db: Session):
-    item = db.query(Wallet).filter(Wallet.user_id == id).first()
+def update_wallet_balance_by_id(id: int, reference: str, amount: int, method: str, db: Session):
+    try:
+        item = db.query(Wallet).filter(Wallet.user_id == id).first()
 
-    if item is None:
-        raise HTTPException(status_code=404, detail="Wallet not found")
-    # Update balance with truncated amount
-    balance_before = item.balance
-    amount = Decimal(str(amount)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)
-    item.balance = (item.balance + amount)
-    balance_after = item.balance
+        if item is None:
+            raise HTTPException(status_code=404, detail="Wallet not found")
 
-    db.commit()
+        # Update balance with truncated amount
+        balance_before = item.balance
+        amount = Decimal(str(amount)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)
+        item.balance = (item.balance + amount)
+        balance_after = item.balance
 
-    # Add balance history if balance has changed
-    reference = reference if reference is not None else ref,
-    if balance_before != balance_after:
+        db.commit()
 
-        balance_history = WalletHistory(
-            wallet_id=item.id,
-            user_id=item.user_id,
-            balance_before=balance_before,
-            balance_after=balance_after,
-            amount = amount,
-            #add reference, if reference is empty then generate a random string
-            #reference = reference if reference is not None else ref,
-            reference = reference,
-            method=method,
+        # Add balance history if balance has changed
+        reference = reference if reference is not None else ref,
+        if balance_before != balance_after:
 
+            balance_history = WalletHistory(
+                wallet_id=item.id,
+                user_id=item.user_id,
+                balance_before=balance_before,
+                balance_after=balance_after,
+                amount = amount,
+                reference = reference,
+                method=method,
+                date_time=formatted_datetime
+            )
+            db.add(balance_history)
 
+        db.commit()
+        db.refresh(item)
 
-            date_time=formatted_datetime
-        )
-        db.add(balance_history)
-    db.commit()
-    db.refresh(item)
+        return item
 
-    return item
+    except Exception as e:
+        # Catch any exception that may occur and return an error response
+        error_message = str(e)
+        raise HTTPException(status_code=500, detail=error_message)
 
 #see wallet history
 def get_wallet_history(id: int, db: Session):
