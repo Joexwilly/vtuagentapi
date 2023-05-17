@@ -101,7 +101,7 @@ def delete_user(id: int, db: Session = Depends(get_db)):
 
 #update user
 @router.patch("/update/{id}")   
-def update_user(id: int,user: UserCreate, db: Session = Depends(get_db)):
+def update_user(id: int,user: UserUpdate, db: Session = Depends(get_db)):
     #current_user = 1
     message = update_user_by_id(id=id,user=user, db=db)
     if not message:

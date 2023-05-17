@@ -13,8 +13,8 @@ def create_new_page_discount(page_discount: PageDiscountBase,db: Session):
     return page_discount_object
 
 # get page discount by page name
-def retreive_page_discount(page_name:str,db:Session):
-    item = db.query(PageDiscount).filter(PageDiscount.page_name == page_name).first()
+def retreive_page_discount(service_name:str,db:Session):
+    item = db.query(PageDiscount).filter(PageDiscount.service_name == service_name).first()
     return item
 
 # list all page discounts in the database
@@ -23,8 +23,8 @@ def list_page_discounts(db:Session):
     return page_discounts
 
 # delete page discount by page name
-def delete_page_discount_by_page_name(page_name: str,db: Session):
-    existing_page_discount = db.query(PageDiscount).filter(PageDiscount.page_name == page_name)
+def delete_page_discount_by_service_name(service_name: str,db: Session):
+    existing_page_discount = db.query(PageDiscount).filter(PageDiscount.service_name == service_name)
     if not existing_page_discount.first():
         return 0
     existing_page_discount.delete(synchronize_session=False)
@@ -32,8 +32,8 @@ def delete_page_discount_by_page_name(page_name: str,db: Session):
     return 1
 
 # update page discount by page name
-def update_page_discount_by_page_name(page_name:str, page_discount: PageDiscountBase,db: Session):
-    existing_page_discount = db.query(PageDiscount).filter(PageDiscount.page_name == page_name)
+def update_page_discount_by_service_name(service_name:str, page_discount: PageDiscountBase,db: Session):
+    existing_page_discount = db.query(PageDiscount).filter(PageDiscount.service_name == service_name)
     if not existing_page_discount.first():
         return 0
     existing_page_discount.update(page_discount.__dict__)

@@ -5,7 +5,7 @@ from datetime import date,datetime
 #transaction schema
 
 class TransactionBase(BaseModel):
-    amount : int
+    amount : condecimal(max_digits=10, decimal_places=2)
     reference : str
     status : Optional[str] = None
     memo : Optional[str] = None
@@ -14,19 +14,22 @@ class TransactionBase(BaseModel):
     transaction_date : datetime = datetime.now()
     balance_before :  condecimal(max_digits=10, decimal_places=2)
     balance_after :  condecimal(max_digits=10, decimal_places=2)
-    is_active : bool = True
+    
+
+    
+    
 
 class ShowTransaction(TransactionBase):
-    amount : int
+    amount : condecimal(max_digits=10, decimal_places=2)
     reference : str
-    status : str
-    memo : str
-    extras : str
-    transaction_type : str
+    status : str = None
+    memo : str = None
+    extras : str = None
+    transaction_type : str = None
     transaction_date : datetime
     balance_before :  condecimal(max_digits=10, decimal_places=2)
     balance_after :  condecimal(max_digits=10, decimal_places=2)
-    is_active : bool 
+    
     
         
     class Config():  #to convert non dict obj to json

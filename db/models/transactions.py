@@ -4,7 +4,7 @@ from db.repository.datetime import formatted_datetime
 
 from db.base_class import Base
 
-#Transaction details model
+# #Transaction details model
 
 class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
@@ -17,6 +17,5 @@ class Transaction(Base):
     transaction_date = Column(DateTime , default=formatted_datetime)
     balance_before = Column(DECIMAL(10, 2), default=0.00, nullable = True)
     balance_after = Column(DECIMAL(10, 2), default=0.00, nullable = True)
-    is_active = Column(Boolean(), default=True)
     owner_id = Column(Integer, ForeignKey("user.id"))
     owner = relationship("User", back_populates="transactions", cascade="all, delete")

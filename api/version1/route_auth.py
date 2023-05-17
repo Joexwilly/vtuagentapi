@@ -140,9 +140,10 @@ async def reset_request(user_email: PasswordRequest,db: Session=Depends(get_db))
         #token = secrets.token_hex(4)
         
 
-        reset_link = f"http://localhost:8000/?token={token}"
+        #reset_link = f"http://localhost:8000/?token={token}"
+        reset_code = token
 
-        await password_reset("Password Reset", user.email, {"title": "Password Reset", "reset_link": reset_link})
+        await password_reset("Password Reset", user.email, {"title": "Password Reset", "reset_code": reset_code})
 
         return {"message": "Password reset email sent"}
     else:
@@ -205,33 +206,6 @@ async def activate_user(token: str,db: Session=Depends(get_db)):
             )
 
 #get otp by sms
-@router.post("/otp", response_description="Get OTP")
-async def get_otp(user_phone: str,db: Session=Depends(get_db)):
-    user = get_user_by_phone(user_phone,db)
-    if user is not None:
-        #strip phone number to 10 digits and add 234 to the front
-        phone = "234" + user_phone[-10:]
-        otp = sms_otp(phone,db)
-        #await otp_send("OTP", user.phone, {"title": "OTP", "otp": otp})
-        return {"message": "OTP sent"}
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="User with this phone number not found"
-            )
-
-#update password with otp
-@router.post("/password-reset/{otp}", response_description="Update Password")
-async def update_password(otp: str, db: Session=Depends(get_db)):
-    #check if the sms otp is valid
-    if verify_sms_otp(otp,db=db):
-        #get the user id from the otp
-        return {"message": "Password successfully updated"}
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail="Invalid OTP"
-            )
 
 #logout user
 @router.post("/logout", response_description="Logout User")

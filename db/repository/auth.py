@@ -5,8 +5,11 @@ from sqlalchemy.orm import Session
 from db.models.users import User 
 import requests
 import json
+import os
+from dotenv import load_dotenv
 
 pin_id = {}
+load_dotenv()
 
 # def get_user(phone:str,db: Session):
 #     user = db.query(User).filter(User.phone || User.email == phone).first()
@@ -26,7 +29,7 @@ def sms_otp(phone: str, db: Session):
     user = db.query(User).filter(or_(User.phone == phone, User.email == phone)).first()
     url = "https://api.ng.termii.com/api/sms/otp/send"
     payload = {
-            "api_key" : "TLdt2cEASyCECDkbjpEewpl5VprA4VndOlJg3g2ujYfk9DSzM44GdLezLJWlwp",
+            "api_key" : os.getenv("TERMII_API_KEY"),
             "message_type" : "NUMERIC",
             "to" : phone,
             "from" : "VTUking",
@@ -56,7 +59,7 @@ def verify_sms_otp(otp: str, db: Session):
     url = "https://api.ng.termii.com/api/sms/otp/verify"
 
     payload = {
-        "api_key": "TLdt2cEASyCECDkbjpEewpl5VprA4VndOlJg3g2ujYfk9DSzM44GdLezLJWlwp",
+        "api_key": os.getenv("TERMII_API_KEY"),
           "pin_id": pin_id,
           "pin": otp,
        }

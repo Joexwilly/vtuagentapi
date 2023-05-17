@@ -103,13 +103,14 @@ def delete_user_by_id(id: int,db: Session):
 
 
 #update user by id
-def update_user_by_id(id: int, user: UserCreate, db: Session):
+def update_user_by_id(id: int, user: UserUpdate, db: Session):
     existing_user = db.query(User).filter(User.id == id).first()
     if not existing_user:
         return 0
     existing_user.phone = user.phone
     existing_user.email = user.email
     existing_user.hashed_password = Hasher.get_password_hash(user.password)
+    existing_user.is_superuser = user.is_superuser
     db.commit()
     return 1
 

@@ -34,6 +34,7 @@ from db.base_class import Base
 #     wallet = relationship('Wallet', back_populates='wallethistory')
 #     user = relationship('User', back_populates='wallethistory')
 
+# the main one below
 
 class Wallet(Base):
     id = Column(Integer, primary_key=True, index=True)
@@ -55,5 +56,3 @@ class WalletHistory(Base):
     date_time = Column(DateTime, default=formatted_datetime)
     wallet = relationship('Wallet', back_populates='wallethistory', cascade="all, delete")
     user = relationship('User', back_populates='wallethistory', cascade="all, delete")
-
-

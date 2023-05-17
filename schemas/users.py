@@ -16,8 +16,11 @@ class UserCreate(BaseModel):
     password: str
 
 class UserUpdate(BaseModel):
-    phone: str
-    email: EmailStr
+    name: Optional[str]
+    phone: Optional[str]
+    email: Optional[EmailStr]
+    password: Optional[str]
+    is_superuser: bool
       
     
     class Config():  #tells pydantic to convert even non dict obj to json

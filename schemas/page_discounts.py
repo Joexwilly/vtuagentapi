@@ -5,12 +5,12 @@ from datetime import date,datetime
 #page names and their discounts in percentage and whether they are active or not
 
 class PageDiscountBase(BaseModel):
-    page_name : str
+    service_name : str
     discount :  condecimal(max_digits=10, decimal_places=2)
     is_active : bool = True
 
 class ShowPageDiscount(PageDiscountBase):
-    page_name : str
+    service_name : str
     discount :  condecimal(max_digits=10, decimal_places=2)
     is_active : bool 
     
