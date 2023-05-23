@@ -222,3 +222,33 @@ async def logout_user(current_user: User = Depends(get_current_user_from_token),
             )
     
 #get current user from token depending on oauth2_scheme
+
+#send sms otp
+@router.post("/sms-otp", response_description="Send SMS OTP")
+async def send_sms_otp(phone: str,db: Session=Depends(get_db)):
+    user = get_user_by_phone(phone,db)
+    if user is not None:
+        sms_otp(phone,db)
+        return {"message": "OTP sent"}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User with this phone not found"
+            )
+    
+
+#verify sms otp
+@router.post("/verify-sms-otp", response_description="Verify SMS OTP")
+async def verify_sms_otp_sent(phone:str, otp: str,db: Session=Depends(get_db)):
+    user = verify_sms_otp(phone,otp,db)
+    if user is not None:
+        return {"message": "OTP verified"}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="User with this phone not found"
+            )
+
+
+
+

@@ -25,10 +25,15 @@ def get_user_by_email(email: User.email,  db:Session):             #new
     return user
 
 def sms_otp(phone: str, db: Session):
-#termil api integration
-    user = db.query(User).filter(or_(User.phone == phone, User.email == phone)).first()
-    url = "https://api.ng.termii.com/api/sms/otp/send"
-    payload = {
+    try:
+        #termil api integration
+        user = db.query(User).filter(or_(User.phone == phone, User.email == phone)).first()
+
+        if phone.startswith("0"):
+            phone = "234" + phone[1:]
+        url = "https://api.ng.termii.com/api/sms/otp/send"
+
+        payload = {
             "api_key" : os.getenv("TERMII_API_KEY"),
             "message_type" : "NUMERIC",
             "to" : phone,
@@ -41,32 +46,45 @@ def sms_otp(phone: str, db: Session):
             "message_text" : "Your pin is < 1234 >",
             "pin_type" : "NUMERIC"
         }
-    headers = {
-    'Content-Type': 'application/json',
-    }
-    response = requests.request("POST", url, headers=headers, json=payload)
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        response = requests.request("POST", url, headers=headers, json=payload)
 
-    pin_d = response.text
-    #pin_id = pin_d['pinId']
-    response_json = json.loads(pin_d)
-    pin_id = response_json['pinId']
-    print(pin_id + user)
+        pin_d = response.text
+        response_json = json.loads(pin_d)
+        pin_id = response_json['pinId']
+        user.sms_otp = pin_id
+        db.commit() 
+        print(response.text)
+        print(pin_id)
+    except Exception as e:
+        print("An error occurred:", str(e))
+
     
    
 
-def verify_sms_otp(otp: str, db: Session):
+def verify_sms_otp(phone: str, otp: str, db: Session):
+    user = db.query(User).filter(User.phone == phone).first()
+
     
     url = "https://api.ng.termii.com/api/sms/otp/verify"
 
     payload = {
         "api_key": os.getenv("TERMII_API_KEY"),
-          "pin_id": pin_id,
+          "pin_id": user.sms_otp,
           "pin": otp,
        }
     headers = {
     'Content-Type': 'application/json',
     }
     response = requests.request("POST", url, headers=headers, json=payload)
+    #if response.status_code == 200: set phone_verified to true
+    if response.status_code == 200:
+        user.phone_verified = True
+        db.commit()
+        db.refresh(user)
+        return user
     print(response.text)
 
 #validate otp

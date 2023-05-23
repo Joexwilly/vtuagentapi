@@ -17,6 +17,10 @@ class User(Base):
     is_logged_in = Column(Boolean(), default=False)
     #date created
     date_created = Column(DateTime, default=formatted_datetime)
+    #sms otp field
+    sms_otp = Column(String, nullable = True)
+    #bool field to check if user has verified his/her phone number
+    phone_verified = Column(Boolean(), default=False)
     jobs = relationship("Job", back_populates="owner" , cascade="all, delete")
     transactions = relationship("Transaction", back_populates="owner", cascade="all, delete")
     wallet = relationship("Wallet", back_populates="user",cascade="all, delete")
